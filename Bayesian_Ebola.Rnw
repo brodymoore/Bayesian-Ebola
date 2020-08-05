@@ -1,0 +1,906 @@
+\documentclass[12pt]{article}
+
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{mathptmx}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{cite}
+\usepackage{url}
+\usetikzlibrary{matrix}
+\usepackage[none]{hyphenat}
+\usepackage{afterpage}
+\usepackage[left=1.5in,right=1in,top=1.2in,bottom=1in]{geometry}
+\usepackage{listings}
+\usepackage{inconsolata}
+\usepackage[nottoc,numbib]{tocbibind}
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+\sloppy
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	\par
+	\vspace*{3cm}
+	Claremont McKenna College \par
+	\vspace{1cm}
+	\fontsize{16}{16}\selectfont
+	\textbf{Bayesian Hierarchical Meta-Analysis \\ of Asymptomatic Ebola Seroprevalence}\par
+	\vspace{6cm}
+	\fontsize{12}{12}\selectfont
+	Submitted to \\ Professor Mark Huber\par
+	\vspace{3cm}
+	by \\ Peter Brody-Moore\par
+
+	\vfill
+
+% Bottom of the page
+	for \\
+	Senior Thesis \\
+	Spring 2019 \\
+	4/29/2019
+	\par
+\end{titlepage}
+
+\thispagestyle{empty}
+\clearpage\mbox{}\clearpage
+
+\clearpage
+
+\begin{abstract}
+\noindent The continued study of asymptomatic Ebolavirus infection is necessary to develop a more complete understanding of Ebola transmission dynamics. This paper conducts a meta-analysis of eight studies that measure seroprevalence (the number of subjects that test positive for anti-Ebolavirus antibodies in their blood) in subjects with household exposure or known case-contact with Ebola, but that have shown no symptoms. In our two random effects Bayesian hierarchical models, we find estimated seroprevalences of 8.76$\%$ and 9.72$\%$, significantly higher than the 3.3$\%$ found by a previous meta-analysis of these eight studies. We also produce a variation of this meta-analysis where we exclude two of the eight studies. In this model, we find an estimated seroprevalence of 4.4$\%$, much lower than our first two Bayesian hierarchical models. We believe a random effects model more accurately reflects the heterogeneity between studies and thus asymptomatic Ebola is more seroprevalent than previously believed among subjects with household exposure or known case-contact. However, a strong conclusion cannot be reached on the seriousness of asymptomatic Ebola without an international testing standard and more data collection using this adopted standard.
+\end{abstract}
+
+\newpage
+\setcounter{page}{1}
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+Since its first outbreak in present day Democratic Republic of Congo, in 1976,  Ebolavirus Disease (Ebola) has been studied extensively. Research is relatively difficult because outbreaks are rare and fatality rates from the virus are high. There have been roughly 29 outbreaks since the first in 1976~\cite{bean_2018} and the mean fatality rate is 50$\%$~\cite{world_health_organization_2018}. Yet, significant progress has been made in understanding how Ebola originates, spreads, and affects its hosts. More research is needed, however, in understanding asymptomatic Ebola infection, or Ebola that manifests itself without symptoms. Previous studies have reached a wide range of conclusions on the seriousness of asymptomatic Ebola. Because there is no standard method to test for asymptomatic Ebola seropositivity, even though the World Health Organization has stated that there is ``an urgent need for one,''~\cite{pmid28140390} there is often criticism on the legitimacy of study results. During the recent outbreak in West Africa between 2013 and 2016, asymptomatic Ebola was not an input into disease transmission models or considered when projecting intervention effects~\cite{pmid27846221}. Thus, the current general consensus does not consider asymptomatic Ebola to be a serious or relevant issue when considering how to deal with the diagnosis and spread of Ebola.
+\\ \\
+Conducting more research on asymptomatic Ebola is important because it has potentially relevant effects on Ebolavirus transmission. A better understanding of the seroprevalence of asymptomatic Ebola would improve mathematical models of disease transmission, could be used to calculate a more accurate vaccination threshold, and would inform outbreak management procedures~\cite{pmid28396474}~\cite{pmid28256310}. If asymptomatic Ebolavirus infection is sufficiently uncommon, then it is not a major factor in the spread of the disease during outbreaks and public health officials need not spend resources trying to identify it for outbreak control. However, if it is more frequent than previously thought, then its omission in transmission models is problematic and more resources need to be dedicated to identifying asymptomatic infection. Further, the evidence is inconclusive on whether asymptomatic Ebola is infectious to others or whether Ebolavirus remains in those with asymptomatic Ebola for a long period after the outbreak~\cite{pmid28256310}. The prevalence of asymptomatic Ebola could also provoke the need for study in these areas.
+\\ \\
+This paper conducts a novel meta-analysis of asymptomatic Ebola through a Bayesian framework. Using a variety of Bayesian hierarchical models, we build on a previous meta-analysis done by Bower $\&$ Glynn~\cite{pmid28140390}. The authors use eight studies in their meta-analysis ~\cite{pmid27846221}~\cite{pmid28256310}~\cite{pmid307456}~\cite{pmid9988162}~\cite{pmid10881895}~\cite{pmid10348236}~\cite{pmid25910637}~\cite{pmid27286990}. All eight studies consist of data from groups with household exposure or known case-contact, meaning each tested patient had comparable exposure to someone diagnosed with Ebola. Furthermore, each study tested for seroprevalence of Ebolavirus antibodies by ELISA (enzyme-linked immunosorbent assay) or IFA (immunofluorescence antibody tests). Studies that tested by IFA had a cut-off $\geq$ 1:64, generally accepted as a rigorous threshold for serotesting. However, Bower $\&$ Glynn admit "there is no definitive evidence that this an appropriate threshold"~\cite{pmid28140390}.
+\\ \\
+This paper first explores the Bayesian statistical paradigm and Bayesian hierarchical models to understand why they are powerful for meta-analyses. Then, it will replicate the result of Bower $\&$ Glynn, compare this result to a fixed effects Bayesian model, and extend this thinking to two random effects Bayesian hierarchical models. Next, we test the sensitivity of these results to removing two questionable studies from the meta-analysis. Finally, we do a deep dive into the model validation and convergence diagnostics for one of our Bayesian hierarchical models and conclude with implications of our results.
+
+\section{The Bayesian Paradigm}
+\subsection{Bayesian vs. Frequentist}
+There are two main schools of thought in statistical inference: Bayesian and Frequentist. Frequentist statistics has traditionally dominated the field and is what students largely learn in their first introduction to statistics. A typical calculus-based introductory statistics course may explore Bayes' theorem and credible intervals, but learning about Bayesian inference often ends there. In recent years, however, rises in computing power and the development of Markov Chain Monte Carlo (MCMC) techniques have allowed Bayesian statisticians to build novel methods for inference. This has led to a revival of Bayesian statistics as more people are exposed to these methods.
+\\ \\
+Bayesian statistics is grounded in Bayes' Theorem: 
+\\ \\
+\centerline{P(A$|$B) = $\frac{P(B|A)P(A)}{P(B)}$.}
+\\ \\
+P(A$|$B) will be referred to as the posterior distribution, P(B$|$A) as the likelihood, P(A) as the prior, and P(B) as the marginal likelihood. Intuitively, the posterior is the probability of our hypothesis A given data B, the likelihood is the probability of observing the data B given hypothesis A, the prior is the probability of our hypothesis A before collecting any data, and the marginal normalizes the distribution with the probability of observing the data B under all hypotheses.
+\\ \\
+It is helpful to understand the key differences between the two schools before probing deeper into Bayesian methods. Philosophically, Bayesians seek to model uncertainty by placing a probability distribution on hypotheses, while Frequentists do not. Bayesians see outcomes as drawn from distributions, while Frequentists see them as fixed. 
+\\ \\
+For example, suppose ten coins are flipped, and seven of them come up as heads. We want to estimate A, the probability of flipping a head with this coin. A Frequentist would look at the data and give a point estimate for A of 0.7, the mean. A Bayesian, however, would but a prior on A, say beta(25,25). This encodes the relatively strong belief of a fair coin, because the expectation of a beta distribution is $\alpha$/($\alpha$ + $\beta$). 
+\\ \\
+We are interested in P(A$|$B) $\propto$ P(B$|$A)P(A). The likelihood is:
+\\ \\
+\centerline{${10 \choose 7}A^7(1-A)^3$}
+\\ \\
+And the density of the beta prior is: 
+\\ \\
+\centerline{$\frac{\Gamma(50)}{\Gamma(25)\Gamma(25)}A^{24}(1-A)^{24}$}
+\\ \\
+Combining these, we get:
+\\ \\
+\centerline{${10 \choose 7}A^7(1-A)^3$$\frac{\Gamma(50)}{\Gamma(25)\Gamma(25)}A^{24}(1-A)^{24}$}
+\\ \\
+Pulling out the constants to focus on the kernel:
+\\ \\
+\centerline{P(A$|$B) $\propto$ $A^7(1-A)^3A^{24}(1-A)^{24}$}
+\\ \\
+And finally, combining like terms:
+\\ \\
+\centerline{P(A$|$B) $\propto$ $A^{31}(1-A)^{27}$}
+\\ \\
+With this prior and likelihood, we get a posterior distribution of A $\sim$ beta(32,28). This is a special case of calculating a posterior distribution because a beta prior is conjugate with binomial data. This means that the likelihood and prior distribution match up such that we do not have to calculate the marginal likelihood. After 10 flips, we have a posterior mean estimate of 32/60, or approximately 0.53. Thus, the data moved the posterior mean to 0.53 from a prior mean of 0.5 after seeing the data. Notice this philosophical difference in that after 10 data points, the Frequentist estimates A = .7 and the Bayesian estimates A to be drawn from a beta distribution with parameters $\alpha$ = 32 and $\beta$ = 28.
+\\ \\
+There are two distinct eras of Bayesian statistics: pre-computation and computation. Before the rise of computational power, Bayesian statistics was constrained to simple examples like the one above with a conjugate prior and likelihood. However, with the rise of computing power in recent decades, the development of MCMC techniques has given Bayesian statistics tremendous inferential power. Bayesian statistics stalled because you either had to use a conjugate prior to ignore the normalizing constant, or do increasingly complex multidimensional integrations to find the normalizing constant (because the denominator of Bayes' theorem is $\int p(\theta)p(x|\theta)d\theta$). The development of MCMC techniques such as Metropolis-Hastings and Gibbs Sampler allowed Bayesians to sample from conditional posterior distributions in order to create a stationary distribution. This stationary distribution hopefully converges to the posterior distribution of interest, often referred to as the target distribution.
+\\ \\
+Finally, one notable feature that will be relevant when interpreting model results is the difference between confidence intervals and credible intervals. A confidence interval seeks to describe a range of values that will contain the true effect at least a certain percentage of the time. For example, we would hope a 95$\%$ confidence interval would contain the true value at least 95$\%$ of the time. If we replicated the experiment 100 times, then at least 95 of the experiments would contain the true value. This does not fit into the Bayesian paradigm because Bayesians see parameters as drawn from some probability distribution. A credible interval seeks to contain a certain percentage of the posterior probability distribution. If we want a 95$\%$ credible interval, then we give a lower and upper bound that contain 95$\%$ of the posterior distribution's probability. If the credible interval is equal-tailed, we can cut off 2.5$\%$ from either end. There are also variations such as the highest density region that tries to capture that 95$\%$ of the posterior in the smallest possible interval, but this can require a bit more work for complex posteriors.
+\subsection{Bayesian Hierarchical Models}
+
+One powerful method of Bayesian inference is the idea of Bayesian hierarchical modeling. This method uses multiple levels in order to develop estimates for parameters of interest. At their core, all hierarchical models do is draw from conditional probability distributions. A two-layer hierarchical model with a beta prior distribution on the thetas and binomial data can be visualized as follows:
+\begin{center}
+\begin{tikzpicture}
+[scale=.6,auto=left,vertex/.style={circle,fill=blue!20}]
+  \node[vertex] (A) at (6,9) {hyperprior on $\alpha$};
+  \node[vertex] (B) at (12,9) {hyperprior on $\beta$};
+  \node[vertex] (C) at (9,5) {$\operatorname{beta}$($\alpha,\beta$)};
+  \node[vertex] (D) at (6,2) {$\theta_1$};
+  \node[vertex] (E) at (9,2) {...};
+  \node[vertex] (G) at (12,2) {$\theta_n$};
+  \node[vertex] (L) at (6,-1) {$\operatorname{bin}(n_1,\theta_1)$};
+  \node[vertex] (M) at (9,-1) {...};
+  \node[vertex] (O) at (12,-1) {$\operatorname{bin}(n_n,\theta_n)$};  
+  \node[vertex] (P) at (6,-4) {$y_1$};
+  \node[vertex] (Q) at (9,-4) {...};
+  \node[vertex] (R) at (12,-4) {$y_n$};
+  \draw[->] (A) -- (C) node[midway, above] {};
+  \draw[->] (B) -- (C) node[midway, above] {};
+  \draw[->] (C) -- (D) node[midway, above] {};
+  \draw[->] (C) -- (G) node[midway, above] {};
+  \draw[->] (D) -- (L) node[midway, above] {};
+  \draw[->] (G) -- (O) node[midway, above] {};
+  \draw[->] (L) -- (P) node[midway, above] {};
+  \draw[->] (O) -- (R) node[midway, above] {};
+\end{tikzpicture}
+\end{center}
+The only data observed is $y_i$ across $\mathit{i}$ studies, where $y_i$ is the number of successes out of $n_i$ trials. The only items that are manually inputted are the hyperpriors on $\alpha$ and $\beta$. For example, if each $\alpha$ and $\beta$ is drawn from an exponential distribution, then $\lambda_1$ and $\lambda_2$ are inputted as the respective exponential distribution parameters. Each $\theta_i$ that we are estimating is considered to be independently drawn from the common beta distribution, whose parameters we estimate by drawing from conditional distributions. Even though we do not know the true theta values, we can estimate the parameters of the common beta distribution using the observed data.
+
+\subsubsection{General Hierarchical Structure}
+The general structure of our Bayesian hierarchical model is as follows:
+\begin{align*}
+y_i &\sim p(y|\theta_i)
+\\ \\
+\theta_i &\sim p(\theta|\phi)
+\\ \\
+\phi &\sim p(\phi)
+\end{align*}
+In the Bayesian hierarchical models that follow, we define these variables as:
+\begin{itemize}
+  \item$y_i$ are the number of patients that test seropositive in study $\textit{i}$.
+  \item$\theta_i$ is the estimate of seroprevalence in study $\textit{i}$.
+  \item$\phi$ is the common distribution that the $\theta$'s are drawn from.
+  \item$p(\phi$) is the hyperprior we put on this common distribution.
+\end{itemize}
+\subsubsection{Joint Posterior for General Hierarchical Structure}
+The joint posterior distribution in Bayesian hierarchical models can be decomposed to full conditional distributions. This provides some intuition for why conditional distributions are the building blocks for hierarchical models. These derivations are adapted from Jarad Niemi's lecture notes on Bayesian statistics~\cite{niemi}.
+\\ \\
+We are interested in the joint posterior: p($\theta,\phi |y)$:
+\\
+
+\centerline{p($\theta,\phi |y) 	\propto p(y | \theta,\phi)p(\theta,\phi)$ =
+$ p(y | \theta)p(\theta | \phi)p(\phi)$}
+
+\bigskip
+\par \noindent Looking across $\textit{i}$ studies and factoring out p($\phi$) because it does not change across the $\textit{i}$'s, we get:
+\\
+
+\centerline{$ p(y | \theta)p(\theta | \phi)p(\phi)$ = [$\prod_{i=1}^{n} p(y_i | \theta_i)p(\theta_i | \phi)] p(\phi)$}
+
+\bigskip
+
+\par \noindent And connecting the two, we get:
+\\
+
+\centerline{p($\theta,\phi |y) \propto$ [$\prod_{i=1}^{n} p(y_i | \theta_i)p(\theta_i | \phi)] p(\phi)$}
+
+
+\bigskip
+\par \noindent Next, we want to break down this joint posterior distribution into separate components:
+\\
+
+\centerline{p($\theta, \phi | y)$ = p($\theta | \phi$, y)p($\phi | y$)}
+\bigskip
+\par \noindent Taking p($\theta | \phi$, y), we can further decompose it to:
+\\
+
+\centerline{p($\theta | \phi$, y) $\propto$ p(y$|\theta$)p($\theta|\phi$) = $\prod_{i=1}^n p(y_i | \theta_i)p(\theta_i|\phi) \propto \prod_{i=1}^n p(\theta_i|\phi,y_i)$}
+
+\bigskip
+\par \noindent And taking p($\phi | y$), we can first decompose it to:
+\\
+
+\centerline{p($\phi | y) \propto p(y|\phi)p(\phi)$}
+\smallskip
+\par \noindent And break down p(y$|\phi$) to:
+\\ \\
+\centerline{p(y$|\phi) = \int p(y|\theta)p(\theta | \phi) d\theta$}
+\smallskip
+\par \noindent Integrating over the thetas, we get:
+\\
+
+\centerline{$\int ... \int \prod_{i=1}^n [p(y_i|\theta_i)p(\theta_i|\phi)]d\theta_1 ... d\theta_n$} 
+\bigskip
+\par \noindent which is equivalent to:
+\\
+\centerline{$\prod_{i=1}^n \int p(y_i|\theta_i)p(\theta_i|\phi)d\theta_i$}
+\smallskip \par \noindent
+\centerline{= $\prod_{i=1}^n p(y_i|\phi$) = p(y $| \phi$)}
+\\ \\
+We see in this derivation that the joint posterior can be decomposed into dependencies among the parameters, allowing parameter estimation using the hierarchical structure.
+\subsection{Meta-Analysis with Bayesian Hierarchical Models}
+A meta-analysis seeks to make statistical inferences by drawing on multiple studies of the same or similar topics. The idea behind a meta-analysis is that more robust inferences can be made when one aggregates information from multiple sources. There are many ways to conduct a quantitative meta-analysis. A meta-analysis can be explored using a fixed effects model or a random effects model. The key difference between these two types of models is how they deal with heterogeneity. A fixed effects model assumes that an effect is fixed across all the scientific studies, ignoring any heterogeneity between the studies. A random effects model assumes that each study's effect is drawn from the same distribution for all the studies, accounting for the heterogeneity between the studies~\cite{borenstein_2009}. 
+\\ \\
+A meta-analysis can also be conducted on a spectrum, ranging from completely separate to completely pooled, or somewhere in the middle. If the studies are completely different, such that the outcomes from one do not inform the outcomes of the other, then they need to be analyzed separately. If the studies are considered to be identical, then they can be pooled and analyzed together to get one common effect. However, if the studies are similar (or, more specifically, exchangeable), then an analysis can borrow information from the others without complete combining them. This is the case when utilizing a Bayesian Hierarchical Model for meta-analysis.
+\\ \\
+Bayesian Hierarchical Models provide a natural framework to conduct a meta-analysis. It allows for the borrowing of strength, allowing studies with a larger sample size to inform the inference on smaller studies~\cite{bda}. In the context of biostatistics, this is especially useful because many studies are conducted with small sample sizes. In the eight studies we look at in our meta-analysis, sample sizes range from 24 to 404, allowing the bigger studies to inform the smaller studies. Furthermore, Bayesian hierarchical modeling is a compromise between pooling all the data and running separate analyses, allowing for more flexible inference. Pooling data implies that it is sampled from the same model, ignoring variation among studies. Analyzing unpooled data does not allow for any borrowing of strength between studies. Thus, Bayesian hierarchical models provides an ideal compromise of partial pooling that addresses these concerns.
+
+\subsubsection{Exchangeability}
+A challenge in meta-analysis is choosing which studies to include and which to exclude. One of the theoretical underpinnings for Bayesian hierarchical models is exchangeability. In our model, we are trying to estimate $\theta_i$, the Ebolavirus seroprevalence in each of our eight studies indexed by $\textit{i}$. Intuitively, exchangeability means that there is no prior knowledge to reason that $\theta_1$ is different from $\theta_2$, that $\theta_2$ is different from $\theta_3$, etc. Mathematically, following Gelman et al., we define the parameters $\theta_1,...,\theta_i$ as exchangeable if the joint distribution p($\theta_1,...,\theta_i$) is invariant to permutations of the indexes (1,...,$\textit{i}$)~\cite{bda}. This is important because in hierarchical models, we claim that the thetas are drawn independently from a common population distribution (or that the thetas are independent, identically distributed random variables). All independently and identically distributed random variables are exchangeable, so exchangeability is a necessary assumption for hierarchical models.
+
+\section{Probabilistic Programming and Stan}
+This paper implements our hierarchical model using the probabilistic programming language Stan. The goal of probabilistic programming languages is to allow a complex statistical analysis to be conducted without the need for extensive programming ~\cite{1809.10756}. With the emergence of extremely large datasets, fields such as machine learning have exploded. However, it can often be burdensome to generate inferences from these large datasets because of the need for highly efficient programming. Probabilistic programming languages solve this problem because they are highly declarative and automate many of the complex mathematical operations needed for complex statistical inference.
+\\ \\
+One of the probabilistic programming languages at the forefront of this movement is Stan. Stan is an imperative programming language, making it more flexible than typical declarative probabilistic programming languages such as BUGS and JAGS~\cite{Carpenter2017}. It uses Hamiltonian Monte Carlo (or the No-U-Turn Sampler, abbreviated NUTS, an extension of Hamiltonian Monte Carlo), a sampler that has been shown to be more efficient and robust than Gibbs Sampling or Metropolis-Hastings for models with complex posteriors~\cite{1111.4246}~\cite{1701.02434}. 
+\\ \\
+The Stan language is organized into six code blocks: data, transformed data, parameters, transformed parameters, model, and generated quantities. In the data block, the user declares variables that are read in from the data. The transformed data block is similar to the data block, but is used for variables that are transformed through some operation. The parameters block allows the user to input the parameters that are sampled through Hamiltonian Monte Carlo (or NUTS). In the transformed parameters block, the user can generate new parameters through operations on the parameters declared in the parameters block. The model block allows the user to make statements that define the model using the inputted parameters. Finally, the purpose of the generated quantities block is to encode options for posterior inference. It is not executed until after the sample has been generated, and can be used to calculate posterior expectations, generate simulated data, and many more useful methods of posterior inference. 
+\\ \\
+Prior to Stan, Hamiltonian Monte Carlo was considered to be effective at exploring high-dimensional probability spaces, but it was often difficult or inefficient to implement computationally. Because Hamiltonian Monte Carlo is rooted in analytic and differential geometry, it requires the computation of gradients and high-order derivatives~\cite{1701.02434}. As more dimensions are added to a model, these operations can take a long time to compute. Stan translates into C++ code before it is executed, allowing for quick and efficient model estimation without the need for C++ knowledge. Stan has made Hamiltonian Monte Carlo a practical and powerful Markov Chain Monte Carlo sampler. 
+\subsection{Hamiltonian Monte Carlo}
+Much of the following information on Hamiltonian Monte Carlo (HMC) is adapted from Betancourt's, "A Conceptual Introduction to Hamiltonian Monte Carlo"~\cite{1701.02434}. The goal of MCMC is to approximate a posterior distribution from which we cannot sample directly. Traditional MCMC algorithms such as Metropolis-Hastings are effective, but have difficulty scaling as more dimensions are added to the model. With high-dimension models, more computational resources are needed to sufficiently explore the probability space and for the chain to converge. Metropolis-Hastings can reach a point where it is prohibitively difficult to run the chain long enough for it to converge. This is one of the main modeling improvements with the implementation of HMC through Stan.
+\\ \\
+The key to HMC's efficiency is making informed jumps, in contrast to Metropolis Hasting's random walk. Hamiltonian Monte Carlo generates a vector field using the probability space's geometry. It then uses this vector field to explore the space in a more deliberate manner than Metropolis Hastings. To build this vector field, the gradient of the target density and an auxiliary momentum variable have to be computed. Betancourt develops an analogy where the target density's mode is a planet, the gradient is a gravitational force, and the space we want to explore is the orbit. Like gravity, the gradient points toward the mode, but the momentum variable prevents the exploration from going directly into the mode. Thus, exploration orbits around the mode in accordance with the gradient and momentum, leading to precise and efficient exploration of the probability space in an ideal model. 
+\\ \\
+Before giving a general HMC algorithm, we need to define a few terms. In HMC, each dimension $\theta_j$ of the parameter space has an auxiliary momentum variable $\phi_j$. We are interested in the joint distribution p($\theta,\phi$) = p($\theta$)p($\phi|\theta$). By standard practice, we define $\phi$ with a multivariate normal distribution, $\phi$ $\sim$ N(0,M). Here, M is a mass matrix of covariances that we input for the multivariate normal. Each iteration requires us to update $\theta$ and $\phi$ with L leapfrog steps. We also input $\epsilon$, the scaling factor for the updates that affects step size. Each full update includes two half-updates of $\phi$, with a full update of $\theta$ in between. Each half-update of $\phi$ requires the calculation of the gradient of the log-posterior density of $\theta$ given y.
+\\ \\
+Following Gelman et al.,~\cite{bda} we define the steps of an HMC iteration as:
+\begin{enumerate}
+  \item Draw $\phi \sim$ N(0,M)
+  \item Update ($\theta$,$\phi$) L times:
+  \begin{itemize}
+    \item Make a first  half-step for $\phi$: $\phi$ = $\phi$ + $\frac{1}{2}\epsilon\frac{dlogp(\theta|y)}{d\theta}$
+    \item Update $\theta$: $\theta$ = $\theta$ + $\epsilon$$M^{-1}\phi$
+    \item Make a second half-step of $\phi$: $\phi$ = $\phi$ + $\frac{1}{2}\epsilon\frac{dlogp(\theta|y)}{d\theta}$
+  \end{itemize}
+  \item Let $\theta^{t-1}$ and $\phi^{t-1}$ be the values of $\theta$ and $\phi$ before updating and let $\theta^{*}$ and $\phi^{*}$ be these values after updating. Calculate:
+  \\
+  \centerline{r = $\frac{p(\theta^{*}|y)p(\phi^{*})}{p(\theta^{t-1}|y)p(\phi^{t-1})}$}
+  \item Set $\theta_t$ = $\theta^{*}$ with probability min(r,1). Else, do not accept and let $\theta_t$ = $\theta^{t-1}$
+\end{enumerate}
+The Bayesian models in this paper use Stan to estimate our posterior distributions and the RStan interface to implement these models in the R programming language. We choose to use Stan's No-U-Turn Sampler (NUTS). As shown in the algorithm above, Hamiltonian Monte Carlo traditionally requires the statistician to input step size $\epsilon$ and number of steps $\textit{L}$. Stan's NUTS makes it possible not to input any parameters by estimating likely candidate points across the target distribution (replacing the need to specify step size) and using primal-dual averaging to strategically adjust $\epsilon$ while the model explores the probability space~\cite{1111.4246}. We provide our Stan Code where relevant, and show how Stan models can be easily implemented directly in R.
+
+\section{Models}
+<<include=FALSE>>=
+library(tidyverse)
+library(rstan)
+library(shinystan)
+library(GGally) # extension to ggplot2
+library(bayesplot) #Plotting bayesian model fits
+library(xtable) # nice tables
+library(meta)
+
+set.seed(4325534)
+
+data <- read_csv('EbolaData.csv') %>%
+  select('No. of samples','IgG +ve','Current country name (ISO 3166-1)','Start year','End year') %>% 
+  rename('samples' = 'No. of samples','seropositive' = 'IgG +ve','country' = 'Current country name (ISO 3166-1)',
+         'start_year' = 'Start year','end_year' = 'End year') %>% 
+  mutate('perc' = round(seropositive/samples,2))
+@
+Following  Bower $\&$ Glynn, we include data from eight different studies. Three of the studies are from the Democratic Republic of the Congo (DRC), two from Gabon, two from Sierra Leone, and one from Uganda. Observed estimates of seroprevalence range from 1$\%$ in Uganda during the 2007 outbreak, to 46$\%$ in Gabon during the 1996 outbreak, demonstrating significant heterogeneity between studies. Sample sizes range from 24 during the Gabon 1996 outbreak (the same study as the highest seroprevalance estimate) to 404 during the 1976 DRC outbreak. We consider these 8 studies to be exchangeable because all participants have household or known case-contact and because the varying testing mechanisms have sufficient rigor to identify seropositive subjects. There may be questions surrounding the two Gabon studies since they both took place during the same year, in the same country, and have by far the highest estimates (46$\%$ and 21$\%$). We will address this in the last model when we remove these two studies and test how sensitive the parameter estimations are to this removal.
+<<results='asis', echo=FALSE,cache=TRUE>>=
+df <- data.frame(data)
+strCaption <- paste0("Data")
+print(xtable(df, digits=2, caption=strCaption, label="Data"), 
+      size="footnotesize", #Change size; useful for bigger tables
+      include.rownames=TRUE, #Don't print rownames
+      include.colnames=TRUE, #We create them ourselves
+      caption.placement="top", 
+      hline.after=NULL, #We don't need hline; we use booktabs
+      add.to.row = list(pos = list(-1, 
+                                   nrow(df)),
+                        command = c(paste("\\toprule \n",
+                                          "\\midrule \n"),
+                                    "\\bottomrule \n")
+                        )
+      )
+@
+\subsection{Replication of Bower $\&$ Glynn}
+We begin our analysis by replicating the results of Bower $\&$ Glynn's paper, ``A systematic review and meta-analysis of seroprevalence surveys of Ebolavirus infection"~\cite{pmid28140390}.
+<<cache=TRUE>>=
+replication <- metaprop(data$seropositive,data$samples,
+                        sm="PFT",
+                        comb.random=FALSE,
+                        prediction=FALSE)
+@
+
+<<results='asis', echo=FALSE,cache=TRUE>>=
+df = data.frame(.033,'[.024,.044]')
+strCaption <- paste0("Replication")
+print(xtable(df, digits=1, caption=strCaption, label="Replication"), 
+      size="footnotesize", #Change size; useful for bigger tables
+      include.rownames=TRUE, #Don't print rownames
+      include.colnames=FALSE, #We create them ourselves
+      caption.placement="top", 
+      hline.after=NULL, #We don't need hline; we use booktabs
+      add.to.row = list(pos = list(-1, 
+                                   nrow(df)),
+                        command = c(paste("\\toprule \n",
+                                          "& estimate & 95$\\%$ confidence interval \\\\\n",
+                                          "\\midrule \n"),
+                                    "\\bottomrule \n")
+                        )
+      )
+@
+\noindent Bower $\&$ Glynn's results show an overall estimate of seroprevalence in asymptomatic people with known case-contact of 3.3$\%$ with a 95$\%$ confidence interval of [2.4,4.4]. This fixed effects model uses the Freeman Tukey arcsine square root transformation method, which we replicate using the R package, "Meta." The authors also acknowledge the "substantial heterogeneity due to three small studies with higher estimates"~\cite{pmid28140390}. With this estimated seroprevalence of 3.3$\%$, asymptomatic Ebola would not be a significant factor in disease transmission outbreak control. 
+
+\subsection{Non-Hierarchical Stan Model}
+Our first Stan model is a non-hierarchical fixed effects model that provides a global estimate for $\theta$, the estimate of seroprevalence. The main purpose of this model is to show that it is possible to run a fixed effects model in Stan and to give a direct comparison to the fixed effects model chosen by Bower $\&$ Glynn. We put a beta(1,19) prior on the $\theta$ value, giving a prior expectation for $\theta$ of .05. However, there are likely enough observations in the meta-analysis data such that this relatively weak prior will not hold much weight in the posterior estimates.
+<<cache=TRUE,tidy=TRUE,tidy.opts=list(width.cutoff=5)>>=
+a <- 1
+b <- 19
+
+stan_model_non_hierarchical = "
+data {
+  int<lower=0> N; // the number of studies
+  int<lower=0> samples[N]; // the number of samples in each of the N 
+                              studies
+  int<lower=0> seropositive[N]; // the number of seropositive samples 
+                                   in each of the N studies
+  int a; // inputted parameter alpha of the beta hyperprior
+  int b; // inputted parameter beta of the beta hyperprior
+  
+}
+
+parameters {
+  real theta; // the parameter of interest is the global estimate for 
+                 seroprevalence
+}
+model {
+theta ~ beta(a,b); // declares the theta parameter to be distributed 
+                      with a beta prior
+for (n in 1:N) // loops over each study and declares the seropositive 
+                  count to be binomially distributed
+    seropositive[n] ~ binomial(samples[n], theta);  
+}
+"
+@
+
+<<include=FALSE,cache=TRUE>>=
+input = list(seropositive = data$seropositive, samples = data$samples, N = nrow(data),a = a,b = b)
+model = stan_model(model_code = stan_model_non_hierarchical)
+r_non_hierarchical = sampling(model, input, c("theta"), 
+             warmup = 1000, iter = 10000)
+sum_fit <- data.frame(summary(r_non_hierarchical,probs = c(0.025, 0.975))$summary)
+sum_fit <-  subset(sum_fit, select = -c(sd,n_eff,Rhat))
+sum_fit <- head(sum_fit,-1)
+@
+
+<<results='asis', echo=FALSE,cache=TRUE,eval=TRUE>>=
+df <- sum_fit
+strCaption <- paste0("Non-Hierarchical Model")
+print(xtable(df, digits=3, caption=strCaption, label="Model2"), 
+      size="footnotesize", #Change size; useful for bigger tables
+      include.rownames=TRUE, #Don't print rownames
+      include.colnames=FALSE, #We create them ourselves
+      caption.placement="top", 
+      hline.after=NULL, #We don't need hline; we use booktabs
+      add.to.row = list(pos = list(-1, 
+                                   nrow(df)),
+                        command = c(paste("\\toprule \n",
+                                          "& mean & se mean & 2.5$\\%$ & 97.5$\\%$\\\\\n", 
+                                          "\\midrule \n"),
+                                    "\\bottomrule \n")
+                        )
+      )
+@
+\noindent After running the model, we get a global estimate of seroprevalence of 4.6$\%$ with a 95$\%$ credible interval of [3.6,5.8]. The posterior mean of $\theta$ is slightly lower than our prior expectation of 0.05, demonstrating that our data moved the posterior parameter estimates lower than our prior expectation. Also note that we are now using a credible interval because it is a Bayesian model. Thus, 95$\%$ of our posterior probability is captured between 3.6$\%$ and 5.8$\%$, or there is 95$\%$ probability that the true value lies in this interval. Again, we do not want to place too much emphasis on this model because it is not our focus, but it is interesting to see the variation among fixed effects models. These differences can be caused by the priors we set in a Bayesian setting, or by weighting the studies differently to compute the fixed effects estimate. 
+
+\subsection{Beta-Binomial with Natural Parameterization of $\alpha$ and $\beta$}
+
+In our first random effects Bayesian hierarchical model, the population beta distribution P($\theta|\phi$) is conjugate to the binomial likelihood P(y$|\theta$). We believe a random effects model more accurately captures the situation because the true estimate of seroprevalence is presumably different across studies. There are likely factors that affect seroprevalence differently in each study, although they are not immediately known (not harming exchangeability). We expect estimates of seroprevalence to be similar but not identical in each study, which is captured in our model. 
+\\ \\
+We parameterize the beta distribution in a natural way, with the prior expectation as $\mu$ and the prior sample size as $\eta$. We put a hyperprior beta distribution on $\mu$ and a hyperprior exponential distribution on $\eta$. So, our only chosen inputs to the model are the hyperparameters $\alpha_0$ and $\beta_0$ that parameterize the hyperprior beta distribution and $\lambda$ that parameterizes the hyperprior exponential distribution. We choose $\alpha_0$ = 1 and $\beta_0$ = 19, so $\mathbb{E}$[$\mu$] = .05 and $\lambda$ = .05 so $\mathbb{E}$[$\eta$] = 20.
+\\ \\
+In the Stan code, we include a transformed parameter block that computes $\alpha_1$ and $\beta_1$ from $\eta$ and $\mu$. These $\alpha_1$ and $\beta_1$ are the parameters for the beta prior on the $\theta$'s. The expectation of a beta distribution is $\alpha/(\alpha + \beta)$. So, $\mu = \alpha_1/(\alpha_1 + \beta_1)$. The prior sample size of a beta distribution is $\alpha_1$ + $\beta_1$. We can substitute $\eta$ to get $\mu$ = $\alpha_1/\eta$ or $\alpha_1$ = $\mu$ $\cdot$ $\eta$. Similarly, we get $\beta_1$ = $\alpha_1 + \beta_1 - \alpha_1$ = $\alpha_1 + \beta_1 \cdot (1-\alpha_1/(\alpha_1+\beta_1))$ = $\eta \cdot (1-\mu)$
+\\ \\
+Summarized, we have:
+\begin{align*}
+y_i &\sim \operatorname{bin}(n_i,\theta_i)
+\\
+\theta_i &\sim \operatorname{beta}(\alpha_1,\beta_1)
+\\
+\alpha_1 &= \eta \cdot \mu
+\\
+\beta_1 &= \eta \cdot (1-\mu)
+\\
+\mu &\sim \operatorname{beta}(1,19)
+\\
+\eta &\sim \operatorname{exp}(.05)
+\end{align*}
+<<include=TRUE,cache=TRUE,echo=TRUE>>=
+a = 1
+b = 19
+l = .05
+
+stan_model_natural = "
+data {
+  // input data
+  int<lower=0> N; 
+  int<lower=0> samples[N];
+  int<lower=0> seropositive[N];
+  
+  // Inputted priors
+  real<lower=0> a; // hyperparameter alpha 
+  real<lower=0> b; // hyperparameter beta
+  real<lower=0> l; // hyperparameter lambda
+}
+parameters {
+  real<lower=0,upper=1> mu; // prior expectation
+  real<lower=0> eta; // prior sample size
+  real<lower=0,upper=1> theta[N];  // estimate of seroprevalence 
+                                      for each study
+}
+transformed parameters{
+  real<lower=0> alpha;
+  real<lower=0> beta;
+  alpha = eta* mu ; // calculates alpha 
+  beta = eta*(1-mu); // calculates beta 
+}
+model {
+  mu ~ beta(a,b); // hyperprior on prior expectation
+  eta ~ exponential(l); // hyperprior on prior sample size
+  
+  theta ~ beta(alpha,beta); // thetas drawn from 
+                               beta distribution
+  seropositive ~ binomial(samples,theta); // seropositive number 
+                                        isbinomially distributed
+}
+"
+@
+
+<<cache=TRUE,include=FALSE>>=
+input = list(seropositive = data$seropositive, samples = data$samples, N = nrow(data),a = a, b = b, l = l)
+model = stan_model(model_code = stan_model_natural)
+r_natural = sampling(model, input, c("mu","eta","alpha","beta","theta"), 
+             warmup = 1000, iter = 10000)
+sum_fit_r_natural <- data.frame(summary(r_natural,probs = c(0.025, 0.975))$summary)
+sum_fit_dropped <-  subset(sum_fit_r_natural, select = -c(sd,n_eff,Rhat))
+sum_fit_dropped <- head(sum_fit_dropped,-1)
+@
+
+<<results='asis', echo=FALSE,cache=TRUE>>=
+df_r_natural <- sum_fit_dropped
+df_r_natural['observed probability'] = c('-','-','-','-',data$perc)
+strCaption <- paste0("Beta-Binomial Natural Parameterization")
+print(xtable(df_r_natural, digits=2, caption=strCaption, label="Model3"), 
+      size="footnotesize", #Change size; useful for bigger tables
+      include.rownames=TRUE, #Don't print rownames
+      include.colnames=FALSE, #We create them ourselves
+      caption.placement="top", 
+      hline.after=NULL, #We don't need hline; we use booktabs
+      add.to.row = list(pos = list(-1, 
+                                   nrow(df_r_natural)),
+                        command = c(paste("\\toprule \n",
+                                          "& mean & se mean & 2.5$\\%$ & 97.5$\\%$ & observed probability \\\\\n",
+                                          "\\midrule \n"),
+                                    "\\bottomrule \n")
+                        )
+      )
+@
+\noindent Each of our Stan Models runs for 10,000 iterations, which includes a burn-in (referred to as warmup in Stan) of 1,000 iterations. The purpose of the burn-in is to deal with the situation where the Markov chain starts in a poor location. In this case, the chain may initially explore a low probability area, leading to poorly representative samples. Thus, we discard the burn-in iterations, then start collecting samples after the burn-in has ended and the chain has neared its equilibrium distribution.
+\\ \\
+After running the model, we see shrinkage, or the pulling of estimates towards the population mean. For example, in study 3, 46$\%$ of the study participants were seropositive. However, our posterior mean for $\theta_3$ is .35, demonstrating that the other studies informed the estimate, resulting in a decreased estimate from the observed data. Posterior visualization and credible intervals for the eight theta parameters can be viewed in sections 8.1 and 8.2 of the appendix.
+\\ \\
+Furthermore, we estimate $\theta$'s to be drawn from a common beta population distribution with parameters $\alpha$ = .93 and $\beta$ = 9.69, making $\mathbb{E}$[$\theta$] = .93/(.93+9.69) = .0876 in this model. We see a significantly higher estimate than the 3.3$\%$ estimated by Bower and Glynn and the 4.6$\%$ estimated by our fixed effects model. This is because the random effects model gives more weight to the smaller sample size studies that have high observed seroprevalence. Finally, our standard errors (posterior standard deviation divided by square root of effective sample size) are all small, signaling that we expect our estimate to be close to the true value.
+
+\subsection{Beta-Binomial with Exponential Priors on $\alpha$ and $\beta$}
+Here we again have a conjugate population distribution and likelihood. However, we now place exponential hyperpriors on $\alpha$ and $\beta$. Our only set inputs to this model are the hyperparameters $\lambda_1$ = 1 and $\lambda_2$ = 19. With these hyperpriors, we get $\mathbb{E}$[$\alpha$] = 1 and $\mathbb{E}$[$\beta$] = 19. This gives the same prior expectation (.05) and sample size (20) for the population distribution as model 3, but with a different hierarchical structure and no transformed parameters.
+<<>>=
+lambda1 = 1
+lambda2 = 1/19
+
+stan_model_exponential = "
+data {
+// input data
+int<lower=0> N; 
+int<lower=0> samples[N];
+int<lower=0> seropositive[N];
+
+// Inputted priors
+real<lower=0> lambda1; // hyperparameter input into 
+                          exponential hyperprior
+real<lower=0> lambda2; // hyperparameter input into 
+                          exponential hyperprior
+}
+parameters {
+real<lower=0> alpha;
+real<lower=0> beta;
+real<lower=0,upper=1> theta[N];
+}
+model {
+alpha ~ exponential(lambda1); // exponential hyperprior on alpha
+beta ~ exponential(lambda2); // exponential hyperprior on alpha
+
+theta ~ beta(alpha,beta);
+seropositive ~ binomial(samples,theta);
+}
+"
+@
+
+<<include=FALSE,cache=TRUE>>=
+input = list(seropositive = data$seropositive, samples = data$samples, N = nrow(data),
+             lambda1 = lambda1,lambda2=lambda2)
+model = stan_model(model_code = stan_model_exponential)
+r_exponential = sampling(model, input, c("alpha","beta","theta"), 
+warmup = 1000, iter = 10000)
+sum_fit <- summary(r_exponential,probs = c(0.025, 0.975))$summary
+sum_fit <-  subset(sum_fit, select = -c(sd,n_eff,Rhat))
+sum_fit <- head(sum_fit,-1)
+@
+\newpage
+<<results='asis', echo=FALSE,cache=TRUE>>=
+df <- data.frame(sum_fit)
+df['study probabilities'] = c('-','-',data$perc)
+strCaption <- paste0("Beta-Binomial with Exponential Priors")
+print(xtable(df, digits=2, caption=strCaption, label="Model4"), 
+      size="footnotesize", #Change size; useful for bigger tables
+      include.rownames=TRUE, #Don't print rownames
+      include.colnames=FALSE, #We create them ourselves
+      caption.placement="top",
+      hline.after=NULL, #We don't need hline; we use booktabs
+      add.to.row = list(pos = list(-1, 
+                                   nrow(df)),
+                        command = c(paste("\\toprule \n",
+                                          "& mean & se mean & 2.5$\\%$ & 97.5$\\%$ & observed probability \\\\\n", 
+                                          "\\midrule \n"),
+                                    "\\bottomrule \n")
+                        )
+      )
+@
+We obtain very similar results to the previous model. The only change in the posterior means for the thetas is $\theta_3$ increasing from .35 to .36. The posterior means for the $\alpha$ and $\beta$ parameters are also similar, with $\alpha$ = .94 and $\beta$ = 8.73. With an estimated population distribution of beta(.94,8.73), we get $\mathbb{E}$[$\theta$] = .0972, slightly higher than the previous estimate of .0876.  Again, our standard errors are low meaning we expect our estimates to be close to the true value. These results demonstrate that our model changes to the hierarchical structure do not significantly change the model results. Given expected estimates for theta of 8.76$\%$ in our previous model and 9.72$\%$ in this model, asymptomatic Ebola is extremely relevant to disease transmission models. 
+\subsection{Beta-Binomial Natural Parameterization without Gabon Data}
+In our final model, we remove two studies from the eight selected by Glynn $\&$ Bower. Both of the removed studies took place during the 1996 outbreak in Gabon with the first having 45.9$\%$ seroprevalence~\cite{pmid10881895} and the second having 21.4$\%$ seroprevalence~\cite{pmid10348236}. These two were much higher than the third highest calculation of 10.5$\%$, and given that they were both taken during the same outbreak, there may be a factor that would cause these estimates to be so much higher and thus violate exchangeability One possible explanation for this could be poor testing procedures that resulting in an unreasonably high observed seroprevalence. However, given our lack of scientific background, we will not make any claims to predict this factor.
+\\ \\
+If these two studies are not exchangeable with the other six, then they would be ineligible for inclusion in the meta-analysis. Furthermore, both these studies have small sample sizes, with 24 and 56 participants respectively. Since a random effects model gives more weight to smaller studies than a fixed effects model, the decision to include or exclude these studies is particularly relevant. We use the same natural hyperparameterization as model 3, but test to see how removing these two studies affects the results.
+
+<<include=FALSE>>=
+data <- read_csv('EbolaData.csv') %>%
+  rename(country_name_original = 'Country name at time of study') %>% 
+  filter(country_name_original != 'Gabon') %>% 
+  select('No. of samples','IgG +ve') %>% 
+  rename('samples' = 'No. of samples','seropositive' = 'IgG +ve') %>% 
+  mutate('perc' = round(seropositive/samples,2))
+@
+
+<<include=TRUE,cache=TRUE,tidy.opts=list(width.cutoff=3)>>=
+a = 1
+b = 19
+l = .05
+
+stan_model_natural = "
+// Same Stan Code as previous natural parameterization model with 
+   different data inputted
+data {
+// input data
+int<lower=0> N; 
+int<lower=0> samples[N];
+int<lower=0> seropositive[N];
+
+// Inputted priors
+real<lower=0> a; 
+real<lower=0> b;
+real<lower=0> l;
+}
+parameters {
+real<lower=0,upper=1> mu;
+real<lower=0> eta;
+real<lower=0,upper=1> theta[N];
+}
+transformed parameters{
+real<lower=0> alpha;
+real<lower=0> beta;
+alpha = eta* mu ;
+beta = eta*(1-mu);
+}
+model {
+mu ~ beta(a,b);
+eta ~ exponential(l);
+
+theta ~ beta(alpha,beta);
+seropositive ~ binomial(samples,theta);
+}
+"
+@
+
+<<include=FALSE,cache=TRUE>>=
+input = list(seropositive = data$seropositive, samples = data$samples, N = nrow(data),a = a, b = b, l = l)
+model = stan_model(model_code = stan_model_natural)
+r_natural_gabon = sampling(model, input, c("mu","eta","alpha","beta","theta"), 
+                     warmup = 1000, iter = 10000)
+sum_fit <- data.frame(summary(r_natural_gabon,probs = c(0.025, 0.975))$summary)
+sum_fit = subset(sum_fit, select = -c(sd,n_eff,Rhat))
+sum_fit <- head(sum_fit,-1)
+#sum_fit['mean with Gabon'] = data.frame(c(df_r_natural$mean[1:6],df_r_natural$mean[9:13]))
+@
+\newpage
+<<results='asis', echo=FALSE,cache=TRUE>>=
+df <- data.frame(sum_fit)
+df['study probabilities'] = c('-','-','-','-',data$perc)
+strCaption <- paste0("Natural Parameterization without Gabon Data")
+print(xtable(df, digits=2, caption=strCaption, label="Model5"), 
+      size="footnotesize", #Change size; useful for bigger tables
+      include.rownames=TRUE,
+      include.colnames=FALSE, #We create them ourselves
+      caption.placement="top", 
+      hline.after=NULL, #We don't need hline; we use booktabs
+      add.to.row = list(pos = list(-1, 
+                                   nrow(df)),
+                        command = c(paste("\\toprule \n",
+                                          "& mean & se mean & 2.5$\\%$ & 97.5$\\%$ & observed probability \\\\\n", 
+                                          "\\midrule \n"),
+                                          "\\bottomrule \n")
+                        )
+      )
+@
+\noindent In these model results, we see two of our parameter estimates change. $\theta_3$ decreases from .1 to .08. The observed probability is .11, so removing the two Gabon studies forced this parameter to shrink to an even lower estimate. $\theta_5$ in this model decreased from .07 to .06. In the model with Gabon data, it was actually forced upward from its observed value of .06, but removing the Gabon data brought it back down to its observed value of .06. Further, we estimate posterior means of 1.7 for $\alpha$ and 36.90 for $\beta$. With these values, the thetas have an expectation of 1.7/(1.7+36.9) = .044, significantly lower than our previous two models. With the expected value of $\theta$ being 4.4$\%$ in this model, the results are more in line with the two fixed effects models. At this estimate, if there is suitable scientific rationale to remove the Gabon studies from the dataset, then asymptomatic Ebola is a much less significant concern than estimated in our two random effects models.
+
+\section{Model Validation}
+
+\subsection{Testing Model on Simulated Data}
+<<eval=TRUE,include=FALSE,cache=TRUE>>=
+set.seed(12345)
+a <-  1
+b <-  19
+l <-  .05
+
+#mu <-  rbeta(1,a,b)
+mu <- 0.05362995
+#eta <- rexp(1,l)
+eta <- 25.37208
+alpha <- eta * mu
+beta <- eta * (1-mu)
+thetas <- rbeta(8,alpha,beta)
+samples <- sample(25:400,8,replace=TRUE)
+positive <- round(thetas*samples)
+  
+stan_model_natural_sim = "
+  data {
+    // input data
+    int<lower=0> N; 
+    int<lower=0> samples[N];
+    int<lower=0> positive[N];
+    
+    // Inputted priors
+    real<lower=0> a;
+    real<lower=0> b;
+    real<lower=0> l;
+  }
+  parameters {
+  real<lower=0,upper=1> mu;
+  real<lower=0> eta;
+  real<lower=0,upper=1> theta[N];
+  }
+  transformed parameters{
+  real<lower=0> alpha;
+  real<lower=0> beta;
+  alpha = eta* mu ;
+  beta = eta*(1-mu);
+  }
+  model {
+  mu ~ beta(a,b);
+  eta ~ exponential(l);
+  
+  theta ~ beta(alpha,beta);
+  positive ~ binomial(samples,theta);
+  }
+"
+  
+input = list(positive = positive, samples = samples, N = length(samples),a = a, b = b, l = l)
+model = stan_model(model_code = stan_model_natural_sim)
+  
+r_natural_sim = sampling(model, input, c("mu","eta","alpha","beta","theta"), 
+                           warmup = 5000, iter = 25000,chains=4)
+  
+sum_fit <- data.frame(summary(r_natural_sim,probs = c(0.025, 0.975))$summary)
+add <- c(mu,eta,alpha,beta,thetas)
+add <- round(add,3)
+add[13] <- 0
+sum_fit['true_values'] = add
+sum_fit_credible <- head(sum_fit,-1) %>% select(mean,X2.5.,X97.5.,true_values)
+
+@
+
+<<results='asis', echo=FALSE,cache=TRUE,eval=TRUE>>=
+df <- sum_fit_credible
+strCaption <- paste0("Credible Interval and True Value")
+print(xtable(df, digits=3, caption=strCaption, label="Simulated"), 
+      size="footnotesize", #Change size; useful for bigger tables
+      include.rownames=TRUE, #Don't print rownames
+      include.colnames=FALSE, #We create them ourselves
+      caption.placement="top", 
+      hline.after=NULL, #We don't need hline; we use booktabs
+      add.to.row = list(pos = list(-1, 
+                                   nrow(df_r_natural)),
+                        command = c(paste("\\toprule \n",
+                                          " & mean & 2.5$\\%$ & 97.5$\\%$ & true value \\\\\n",
+                                          "\\midrule \n"),
+                                    "\\bottomrule \n")
+                        )
+      )
+@
+\noindent To test the robustness of our modeling, we run the model on simulated data in which we know the true values. We choose the hierarchical model from section 4.3, where we parameterize the population beta distribution in a natural way, with the prior expectation as $\mu$ and the prior sample size as $\eta$. We want to test our model's ability to recover simulated values. To do this, we calculate a 95$\%$ credible interval and see if it contains the true parameter value. Stan refers to credible intervals as posterior uncertainty intervals to "highlight the fact that wider intervals correspond to greater uncertainty"~\cite{howell_2017}.
+\\ \\
+After running the model on simulated data, we see that the 95$\%$ credible intervals cover the true parameter value for the 12 parameters of interest. Since we successfully covered these simulated values, the model passes the first test of model validation.
+
+\subsection{Model Diagnostics}
+<<results='asis', echo=FALSE,cache=TRUE>>=
+df_r_natural <- sum_fit_r_natural
+df_r_natural <- head(df_r_natural,-1)
+strCaption <- paste0("Beta-Binomial Natural Parameterization Full")
+print(xtable(df_r_natural, digits=2, caption=strCaption, label="Diagnostics"), 
+      size="footnotesize", #Change size; useful for bigger tables
+      include.rownames=TRUE, #Don't print rownames
+      include.colnames=TRUE, #We create them ourselves
+      caption.placement="top", 
+      hline.after=NULL, #We don't need hline; we use booktabs
+      add.to.row = list(pos = list(-1,
+                                   nrow(df_r_natural)),
+                        command = c(paste("\\toprule \n",
+                        
+                                          "\\midrule \n"),
+                                    "\\bottomrule \n")
+                        )
+      )
+@
+\noindent Here, we add in two convergence diagnostics to our model output table: Rhat and n$\_$eff. Following John Howell's definitions in his Stan Best Practices Guide, Rhat is a statistic that quantifies the consistency of an ensemble of Markov chains. An important distinction to make is that Rhat identifies when there are problems with convergence. It does not confirm that an MCMC algorithm has converged. Our models each run four Markov chains (the default for Stan). Consistency means that each chain explores similar regions of the space for each parameter. If there are inconsistencies among the space explored, then the Rhat statistic will increase, signaling problems with the estimation of the respective parameter. Generally, any Rhat $<$ 1.1 signals a valid model in terms of consistent chains. The Rhat statistics for the 12 parameters are all one, signaling the four chains are exploring similar regions. This can be visualized in section 8.3 of the appendix, where we display the traceplots of the eight theta parameters. We include the burn-in iterations in these plots to show that the initial movement is often far away from the typical space that the chains explore.
+\\ \\
+The Stan Reference Manual defines effective sample size as the number of independent samples with the same estimation power as N autocorrelated samples, where N is the number of iterations for which our chain runs ~\cite{ref}. This is why to calculate standard errors, we divide posterior standard deviation by the square root of effective sample size, as opposed to dividing it by the square root of N.  Looking at the number of effective samples is a measure of how efficiently a chain explores a parameter space.  If a chain is slow, then the number of effective samples is low, which becomes a problem as one adds dimensions to a space because it requires more computation to explore. Generally, the statistic we use to gauge a chain's effectiveness is number of samples per iteration or N$\_$eff / N. For every parameter except for eta and beta, our number of effective samples equals 36,000, the number of iterations (10,000 iterations per chain, 4 chains, minus 1,000 burn-in for each chain). Generally, this means that our chain is exploring the parameter space very rapidly. Although this is somewhat unusual, it is not sufficient reason to disregard the model results.
+
+\section{Conclusion}
+Our three random effects models yield mixed results. When we include the Gabon data, we have expected seroprevalence estimates of 8.76$\%$ in our previous model and 9.72$\%$ (remembering that these are the expected values of the beta distributions that we consider each $\theta$ to be draw from). With these estimates, asymptomatic Ebola is a serious and relevant issue. It provokes the need for more research to understand whether asymptomatic Ebola is infectious to others and to determine how long Ebolavirus remains in those with asymptomatic Ebola after the outbreak. This would further inform understanding in why outbreaks may begin and also lead to more accurate transmission models to predict the spread of Ebola. Once this is known, further research can be done for the best way to prevent and contain Ebola outbreaks.
+\\ \\
+However, if the Gabon data is invalid, or at least not exchangeable, then our results are significantly impacted. When we remove the Gabon data, we have an expected seroprevalence estimate of 4.4$\%$. This is more in line with previous estimates. And, given those estimates, researchers have essentially decided to exclude asymptomatic Ebola from their transmission dynamic models. Thus, if there is sufficient scientific reason to exclude the Gabon data, asymptomatic Ebola is sufficiently negligible that it can continue to be excluded.
+\\ \\
+Given these two scenarios, the next step needs to be developing an international standard testing mechanism and using this mechanism for more data collection. This will prevent or reduce disputes about the quality of the data. Ideally, data could be collected using this new standard during outbreaks in different countries. Then, a future meta-analysis could be conducted in which we could get a more accurate idea of asymptomatic Ebola seroprevalence without the limitations stated in this paper. This will take time, effort, and resources, but it is necessary to further our knowledge and understanding of Ebola. 
+
+\newpage
+\bibliography{bibliography.bib}{}
+\bibliographystyle{plain} 
+\newpage
+\section{Appendix}
+\subsection{Theta Posteriors from Section 4.3}
+<<fig=TRUE,echo=FALSE,eval=TRUE,cache=TRUE,fig.dim = c(6, 5)>>=
+par(mfrow = c(3,3))
+theta1 = extract(r_natural,"theta")$theta[,1]
+plot1 <- hist(theta1,25,
+     main='Posterior for Theta 1',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta2 = extract(r_natural,"theta")$theta[,2]
+plot2 <- hist(theta2,25,
+     main='Posterior for Theta 2',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta3 = extract(r_natural,"theta")$theta[,3]
+plot3 <- hist(theta3,25,
+     main='Posterior for Theta 3',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta4 = extract(r_natural,"theta")$theta[,4]
+plot4 <- hist(theta4,25,
+     main='Posterior for Theta 4',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta5 = extract(r_natural,"theta")$theta[,5]
+plot5 <- hist(theta5,25,
+     main='Posterior for Theta 5',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta6 = extract(r_natural,"theta")$theta[,6]
+plot6 <- hist(theta6,25,
+     main='Posterior for Theta 6',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta7 = extract(r_natural,"theta")$theta[,7]
+plot7 <- hist(theta7,25,
+     main='Posterior for Theta 7',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta8 = extract(r_natural,"theta")$theta[,8]
+plot8 <- hist(theta8,25,
+     main='Posterior for Theta 8',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+@
+
+\newpage
+\subsection{Theta 95$\%$ Credible Intervals from Section 4.3}
+<<fig=TRUE,echo=FALSE,cache=TRUE,fig.dim = c(6, 3)>>=
+plot(r_natural, pars=c('theta'),ci_level = .95)
+@
+\pagebreak
+\subsection{Theta Posteriors from Section 4.4}
+<<fig=TRUE,echo=FALSE,eval=TRUE,cache=TRUE,fig.dim = c(6, 5)>>=
+par(mfrow = c(3,3))
+theta1 = extract(r_exponential,"theta")$theta[,1]
+plot1 <- hist(theta1,25,
+     main='Posterior for Theta 1',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta2 = extract(r_exponential,"theta")$theta[,2]
+plot2 <- hist(theta2,25,
+     main='Posterior for Theta 2',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta3 = extract(r_exponential,"theta")$theta[,3]
+plot3 <- hist(theta3,25,
+     main='Posterior for Theta 3',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta4 = extract(r_exponential,"theta")$theta[,4]
+plot4 <- hist(theta4,25,
+     main='Posterior for Theta 4',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta5 = extract(r_exponential,"theta")$theta[,5]
+plot5 <- hist(theta5,25,
+     main='Posterior for Theta 5',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta6 = extract(r_exponential,"theta")$theta[,6]
+plot6 <- hist(theta6,25,
+     main='Posterior for Theta 6',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta7 = extract(r_exponential,"theta")$theta[,7]
+plot7 <- hist(theta7,25,
+     main='Posterior for Theta 7',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta8 = extract(r_exponential,"theta")$theta[,8]
+plot8 <- hist(theta8,25,
+     main='Posterior for Theta 8',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+@
+\pagebreak
+\subsection{Theta 95$\%$ Credible Intervals from Section 4.4}
+<<fig=TRUE,echo=FALSE,cache=TRUE,fig.dim = c(6, 3)>>=
+plot(r_exponential, pars=c('theta'),ci_level = .95)
+@
+\pagebreak
+\subsection{Theta Posteriors from Section 4.5}
+<<fig=TRUE,echo=FALSE,eval=TRUE,cache=TRUE,fig.dim = c(6, 5)>>=
+par(mfrow = c(3,3))
+theta1 = extract(r_natural_gabon,"theta")$theta[,1]
+plot1 <- hist(theta1,25,
+     main='Posterior for Theta 1',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta2 = extract(r_natural_gabon,"theta")$theta[,2]
+plot2 <- hist(theta2,25,
+     main='Posterior for Theta 2',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta3 = extract(r_natural_gabon,"theta")$theta[,3]
+plot3 <- hist(theta3,25,
+     main='Posterior for Theta 3',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta4 = extract(r_natural_gabon,"theta")$theta[,4]
+plot4 <- hist(theta4,25,
+     main='Posterior for Theta 4',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta5 = extract(r_natural_gabon,"theta")$theta[,5]
+plot5 <- hist(theta5,25,
+     main='Posterior for Theta 5',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+theta6 = extract(r_natural_gabon,"theta")$theta[,6]
+plot6 <- hist(theta6,25,
+     main='Posterior for Theta 6',
+     xlab = 'Asymptomatic Ebola Seroprevalence',
+     ylab = 'Posterior')
+@
+\pagebreak
+\subsection{Theta 95$\%$ Credible Intervals from Section 4.5}
+<<fig=TRUE,echo=FALSE,cache=TRUE,fig.dim = c(6, 3)>>=
+plot(r_natural_gabon, pars=c('theta'),ci_level = .95)
+@
+\pagebreak
+\subsection{Theta Markov Chain Traceplots from Section 5.2}
+<<fig=TRUE,cache=TRUE,fig.dim = c(6, 4),echo=FALSE>>=
+traceplot(r_natural,pars = c('theta'),inc_warmup = TRUE, nrow = 4)
+@
+
+\end{document}

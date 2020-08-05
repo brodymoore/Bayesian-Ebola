@@ -1,0 +1,9 @@
+﻿Location description,Country name at time of study,Current country name (ISO 3166-1),Start year,End year,No. of samples,IgG +ve , IgG +ve %,Assay type ,Cut-off used
+Yambuku ,Zaire ,Congo (Democratic Republic of the),1976,1976,404,10,2.5,IFA(w),0.086111111
+Kikwit,Zaire ,Congo (Democratic Republic of the),1995,1995,101,4,4,ELISA (k),? 1:400 & OD sum ? 1.25
+Unspecified,Gabon ,Gabon,1996,1996,24,11,45.9,ELISA (k),Mean adjusted OD for 10 control samples
+"Nouna River, Ogooue-Ivindo",Gabon ,Gabon,1996,1996,56,12,21.4,ELISA (?),OD > mean +2 SD of 3 known neg controls
+Watsa region,Congo (Democratic Republic of the),Congo (Democratic Republic of the),2002,2002,38,4,10.5,ELISA (k),2 ◊ mean +3 SD of negative controls value
+Bundibugyo,Uganda,Uganda,2007,2007,210,2,1,ELISA (s),Mean OD of negative controls plus 3 SD
+"Sudkudu, Kono District",Sierra Leone,Sierra Leone,2015,2016,187,12,6.4,ELISA (Alpha),4.7 U/ml
+Western Area,Sierra Leone,Sierra Leone,2015,2015,388,10,2.6,ELISA (PHE) ,Mean OD of neg. controls + fixed OD measure (0.1)
